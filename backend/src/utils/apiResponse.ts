@@ -1,0 +1,15 @@
+export class ApiResponse {
+    
+    public statusCode:number;
+    public data:any;
+    public message:string;
+    public success:boolean;
+    
+    constructor(statusCode:number,data:any,messge:string="success"){
+ this.statusCode=statusCode;
+ this.data=data;
+ this.message=message;
+ this.success=statusCode<400;
+    }
+    
+}
