@@ -5,7 +5,7 @@ export class ApiResponse {
     public message:string;
     public success:boolean;
     
-    constructor(statusCode:number,data:any,messge:string="success"){
+    constructor(statusCode:number,data:any,message:string="success"){
  this.statusCode=statusCode;
  this.data=data;
  this.message=message;

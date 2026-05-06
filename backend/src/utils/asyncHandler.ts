@@ -21,7 +21,7 @@ export function Async_Handler(fn: AsyncHandler):any {
 export const async_handler = (fn: AsyncHandler) => async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     try {
         await fn(req, res, next);
-    } catch (error: unknown) {
+    } catch (error: unknown) {   
         if (error instanceof Error) {
             res.status(500).json({
                 success: false,
