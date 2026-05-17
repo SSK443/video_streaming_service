@@ -11,6 +11,9 @@ interface IUser extends Document {
   coverImage?: string;
   refreshToken?: string;
   videoHistory: mongoose.Types.ObjectId[];
+  isPasswordCorrect(password: string): Promise<boolean>;
+  generateJwtTokens(): string;
+  generateRefreshToken(): string;
 }
 
 const userSchema = new mongoose.Schema<IUser>(
@@ -61,14 +64,10 @@ const userSchema = new mongoose.Schema<IUser>(
   { timestamps: true }
 );
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    return next();
-  }
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
 
   this.password = await bcrypt.hash(this.password, 10);
-
-  next();
 });
 
 userSchema.methods.isPasswordCorrect = async function (password: string) {
@@ -76,22 +75,24 @@ userSchema.methods.isPasswordCorrect = async function (password: string) {
 };
 
 userSchema.methods.generateJwtTokens = function () {
-  jwt.sign(
+  return jwt.sign(
     {
       _id: this._id,
-      userName: this.userName,
+      userName: this.userName, 
       fullName: this.fullName,
       email: this.email,
     },
-    process.env.SECRET_ACCESS_TOKEN,
+    process.env.SECRET_ACCESS_TOKEN as string,
     {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRATION,
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRATION as any,
     }
   );
 };
+
 userSchema.methods.generateRefreshToken = function () {
-  return jwt.sign({ _id: this._id }, process.env.REFRESH_TOKEN_SECRET, {
-    expireIn: process.env.REFRESH_TOKEN_EXPIRATION,
+  return jwt.sign({ _id: this._id },
+    process.env.REFRESH_TOKEN_SECRET as string, {
+    expiresIn: process.env.REFRESH_TOKEN_EXPIRATION as any,
   });
 };
 

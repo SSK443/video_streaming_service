@@ -10,6 +10,7 @@
     "module": "nodenext",
     "target": "esnext",
     "types": [],
+   
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -40,5 +41,7 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,//custom for tsx file
   }
 }

@@ -1,1 +1,2 @@
 export const db_name:string="newappdb";
+
