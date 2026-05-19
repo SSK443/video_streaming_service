@@ -6,9 +6,15 @@ import type { Request, Response } from "express";
 import { User } from "../models/user.models.ts";
 
 export const registerUser = async_Handler(async (req: Request, res: Response) => {
+    // --- ARCHITECTURE CONNECTION: STEP 3 (user.controller.ts) ---
+    // The request successfully traveled from app.ts -> user.router.ts -> Multer -> here.
+    // Because Multer already processed the request in the router, 
+    // `req.body` contains the text fields and `req.files` contains the images.
+    
     // get data from frontend
     const { userName, fullName, email, password } = req.body;
 
+    console.log(`this req.body is : ${JSON.stringify(req.body)}, \n this req.files is: ${JSON.stringify(req.files)}`)
     console.log(`username: ${userName}, fullName: ${fullName}, email: ${email}, password: ${password}`);
 
     //check if fields are empty
@@ -44,7 +50,7 @@ export const registerUser = async_Handler(async (req: Request, res: Response) =>
     // We ALWAYS upload the avatar
     const avatarUpload = await clouinaryUpload(avatarLocalPath);
 
-    console.log(avatarUpload);
+    console.log(`The avatar response :${avatarUpload}`);
 
     // We only call clouinaryUpload if coverImageLocalPath is not undefined
     const coverImageUpload = coverImageLocalPath ? await clouinaryUpload(coverImageLocalPath) : null;
@@ -53,7 +59,7 @@ export const registerUser = async_Handler(async (req: Request, res: Response) =>
         throw new ApiError(500, "Failed to upload avatar to Cloudinary");
     }
 
-    console.log(coverImageUpload);
+    console.log(`the cover image response:${coverImageUpload}`);
 
     //create user object-create entry in db
     const user = await User.create({
@@ -81,4 +87,3 @@ export const registerUser = async_Handler(async (req: Request, res: Response) =>
     new ApiResponse(200,userCreated,"User registered successfully")
   )
 });
-cd

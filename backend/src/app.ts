@@ -23,5 +23,11 @@ app.use(express.static("public"));
 app.use(cookieParser());
 
 
-//http://localhost:3000/api/v1/users/register -the router should be like this
+// --- ARCHITECTURE CONNECTION: STEP 1 (app.ts) ---
+// This is the main entry point for requests.
+// When a frontend request hits any URL starting with "/api/v1/users",
+// this `app.use` intercepts it and passes the entire request over to `userRouter`.
+
+// For example: http://localhost:3000/api/v1/users/register 
+// -> Matches "/api/v1/users", so it goes to userRouter.
 app.use("/api/v1/users", userRouter);
