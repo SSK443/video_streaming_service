@@ -30,4 +30,5 @@ app.use(cookieParser());
 
 // For example: http://localhost:3000/api/v1/users/register 
 // -> Matches "/api/v1/users", so it goes to userRouter.
+
 app.use("/api/v1/users", userRouter);

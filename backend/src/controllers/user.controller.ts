@@ -5,6 +5,23 @@ import { clouinaryUpload } from "../utils/cloudinary.ts";
 import type { Request, Response } from "express";
 import { User } from "../models/user.models.ts";
 
+const generateTokensAndRefreshTokens = async (userId: string) => {
+    const user = await User.findById(userId);
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    const accessToken = user.generateJwtTokens();
+    const refreshToken = user.generateRefreshToken();
+
+    user.refreshToken = refreshToken;
+    await user.save({validateBeforeSave: false});
+
+    return { accessToken, refreshToken };
+};
+
+
 export const registerUser = async_Handler(async (req: Request, res: Response) => {
     // --- ARCHITECTURE CONNECTION: STEP 3 (user.controller.ts) ---
     // The request successfully traveled from app.ts -> user.router.ts -> Multer -> here.
@@ -18,7 +35,7 @@ export const registerUser = async_Handler(async (req: Request, res: Response) =>
     console.log(`username: ${userName}, fullName: ${fullName}, email: ${email}, password: ${password}`);
 
     //check if fields are empty
-    if ([userName, fullName, email, password].some((field) => field?.trim() === "")) {
+    if ([userName, fullName, email, password].some((field) => !field?.trim())) {
         throw new ApiError(400, "all fields are required");
     }
 
@@ -39,7 +56,7 @@ export const registerUser = async_Handler(async (req: Request, res: Response) =>
     const avatarLocalPath = files?.avatar?.[0]?.path;
     const coverImageLocalPath = files?.coverImage?.[0]?.path;
 
-
+  
 
 
     if (!avatarLocalPath) {
@@ -87,3 +104,34 @@ export const registerUser = async_Handler(async (req: Request, res: Response) =>
     new ApiResponse(200,userCreated,"User registered successfully")
   )
 });
+
+export const userLogin=async_Handler(async(req:Request,res:Response)=>{
+    //get data from frontend
+
+    const{userName,email,password}=req.body;
+
+    //check if fields are empty
+    if([userName,email,password].some((fields)=>!fields?.trim())){
+        throw new ApiError(400,"all fields are required")
+
+    };
+    //find user in db using email or username
+    const user=await User.findOne({
+    $or:[{email},{userName}]
+    });
+    //check if user exists
+    if(!user){
+        throw new ApiError(404,"User not found, please register")
+    };
+    //check if password is correct
+
+    const isPasswordCorrect=await user.isPasswordCorrect(password);
+
+    //if password is not correct
+    if(!isPasswordCorrect){
+        throw new ApiError(401,"Invalid credentials")
+    };
+//generate access token and refresh token
+
+
+})

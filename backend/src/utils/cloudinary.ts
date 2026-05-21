@@ -3,11 +3,13 @@ import fs from "fs";
 
 // this is function for uploading file to the cloud storage
 export async function clouinaryUpload(localFilePath: string): Promise<UploadApiResponse | null> {
+    
     cloudinary.config({
         cloud_name: process.env.CLOUDINARY_NAME as string,
         api_key: process.env.CLOUDINARY_APIKEY as string,
         api_secret: process.env.CLOUDINARY_APISECRET as string,
     })
+
     try {
         if (!localFilePath) return null;
 
