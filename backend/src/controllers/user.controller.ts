@@ -5,7 +5,7 @@ import { clouinaryUpload } from "../utils/cloudinary.ts";
 import type { Request, Response } from "express";
 import { User } from "../models/user.models.ts";
 
-const generateTokensAndRefreshTokens = async (userId: string) => {
+const generateAccessAndRefreshTokens = async (userId: string) => {
     const user = await User.findById(userId);
 
     if (!user) {
@@ -131,7 +131,30 @@ export const userLogin=async_Handler(async(req:Request,res:Response)=>{
     if(!isPasswordCorrect){
         throw new ApiError(401,"Invalid credentials")
     };
-//generate access token and refresh token
+    //generate access token and refresh token
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id as string);
 
+    // Get the logged-in user, excluding password and refresh token for security
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
+    // httpOnly: frontend user cannot access these tokens
+    // secure: true means the cookies will only be sent over HTTPS
+    const options = {
+        httpOnly: true,
+        secure: true
+    };
+
+    return res.status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(200,
+                {
+                    user: loggedInUser,
+                    accessToken,
+                    refreshToken
+                }, 
+                "User logged in successfully"
+            )
+        );
 })
